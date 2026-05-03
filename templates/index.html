@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Movie Recommender</title>
+
+    <style>
+        body {
+            background: #000;
+            color: white;
+            font-family: Arial;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 42px;
+            font-weight: bold;
+        }
+
+        input {
+            padding: 10px;
+            width: 300px;
+        }
+
+        button {
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        #suggestions {
+            background: #222;
+            width: 320px;
+            margin: auto;
+        }
+
+        #suggestions div {
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        #suggestions div:hover {
+            background: #444;
+        }
+
+        .movies {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            margin: 15px;
+        }
+
+        img {
+            width: 150px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>🎬 Movie Recommender</h1>
+
+<input type="text" id="movie" onkeyup="searchMovies()" placeholder="Type movie...">
+<button onclick="recommend()">Recommend</button>
+
+<div id="suggestions"></div>
+<div class="movies" id="results"></div>
+
+<script>
+async function searchMovies() {
+    let query = document.getElementById("movie").value;
+
+    if (query.length < 2) {
+        document.getElementById("suggestions").innerHTML = "";
+        return;
+    }
+
+    let res = await fetch(`/search?q=${query}`);
+    let data = await res.json();
+
+    let box = document.getElementById("suggestions");
+    box.innerHTML = "";
+
+    data.forEach(movie => {
+        let div = document.createElement("div");
+        div.innerText = movie;
+
+        div.onclick = () => {
+            document.getElementById("movie").value = movie;
+            box.innerHTML = "";
+        };
+
+        box.appendChild(div);
+    });
+}
+
+async function recommend() {
+    let movie = document.getElementById("movie").value;
+
+    let res = await fetch("/recommend", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({movie})
+    });
+
+    let data = await res.json();
+
+    if (data.error) {
+        alert(data.error);
+        return;
+    }
+
+    let results = document.getElementById("results");
+    results.innerHTML = "";
+
+    for (let i = 0; i < data.names.length; i++) {
+        let div = document.createElement("div");
+        div.className = "card";
+
+        div.innerHTML = `
+            <img src="${data.posters[i]}">
+            <p>${data.names[i]}</p>
+        `;
+
+        results.appendChild(div);
+    }
+}
+</script>
+
+</body>
+</html>
