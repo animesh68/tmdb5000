@@ -4,7 +4,7 @@ import requests
 movies = pickle.load(open('movies.pkl', 'rb'))
 similarity = pickle.load(open('similarity.pkl', 'rb'))
 
-API_KEY = "88c38edcd49895718a2b2e4c2cc9a1a9"
+API_KEY = "YOUR-API-KEY"
 
 def fetch_poster(movie_id):
     url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={API_KEY}"
